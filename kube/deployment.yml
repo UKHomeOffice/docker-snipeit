@@ -1,0 +1,86 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{.SNIPEIT_NAME}}
+spec:
+  selector:
+    matchLabels:
+      app: {{.SNIPEIT_NAME}}
+  replicas: 1
+  revisionHistoryLimit: 3
+  template:
+    metadata:
+      labels:
+        app: {{.SNIPEIT_NAME}}
+    spec:
+      securityContext:
+        fsGroup: 1000
+        runAsNonRoot: true
+      containers:
+        - name: SNIPEIT
+          image: "{{.SNIPEIT_IMAGE}}:{{.SNIPEIT_TAG}}"
+          imagePullPolicy: Always
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+          ports:
+            - name: http
+              containerPort: {{.SNIPEIT_PORT}}
+              protocol: TCP
+          env:
+            - name: SNIPEIT_MYSQL_HOST
+              value: {{.SNIPEIT_MYSQL_HOST}}
+            - name: SNIPEIT_MYSQL_DBNAME
+              value: {{.SNIPEIT_MYSQL_DBNAME}}
+            - name: SNIPEIT_MYSQL_USER
+              value: {{.SNIPEIT_MYSQL_USER}}
+            - name: SNIPEIT_MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: "{{.SNIPEIT_NAME}}"
+                  key: mysqlPassword
+            - name: SNIPEIT_MYSQL_PORT
+              value: '{{.SNIPEIT_MYSQL_PORT}}'
+            - name: SNIPEIT_MYSQL_TBL_PREFIX
+              value: '{{.SNIPEIT_MYSQL_TBL_PREFIX}}'
+            - name: HOSTNAME
+              value: '{{.HOSTNAME}}'
+            - name: SNIPEIT_EMAIL_USER
+              value: {{.SNIPEIT_EMAIL_USER}}
+            - name: SNIPEIT_EMAIL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: "{{.SNIPEIT_NAME}}"
+                  key: emailPassword
+            - name: SNIPEIT_PORT
+              value: '{{.SNIPEIT_PORT}}'
+
+        - name: {{.SNIPEIT_NAME}}-proxy
+          image: "{{.NGINX_IMAGE}}:{{.NGINX_TAG}}"
+          imagePullPolicy: Always
+          securityContext:
+            runAsNonRoot: true
+          env:
+            - name: PROXY_SERVICE_HOST
+              value: 'http://127.0.0.1'
+            - name: PROXY_SERVICE_PORT
+              value: "{{.SNIPEIT_PORT}}"
+            - name: LOG_FORMAT_NAME
+              value: 'json'
+            - name: NAXSI_USE_DEFAULT_RULES
+              value: 'FALSE'
+            - name: ENABLE_UUID_PARAM
+              value: 'FALSE'
+            - name: STATSD_METRICS
+              value: "FALSE"
+          ports:
+            - name: https
+              containerPort: 10443
+          volumeMounts:
+          - name: certs
+            mountPath: /certs
+      volumes:
+      - name: certs
+        secret:
+          secretName: "{{.SNIPEIT_NAME}}-pod-tls"
