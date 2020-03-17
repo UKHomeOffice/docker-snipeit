@@ -31,7 +31,7 @@ pipeline:
     tolerate: low
     fail_on_detection: false
     when:
-      branch: master
+      #branch: master
       event: push
 
   image_to_quay:
@@ -45,7 +45,7 @@ pipeline:
     repo: quay.io/ukhomeofficedigital/docker-snipeit
     tags: ${DRONE_COMMIT_SHA}
     when:
-      branch: master
+      #branch: master
       event: push
 
   deploy_to_dev:
