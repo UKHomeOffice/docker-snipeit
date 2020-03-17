@@ -15,15 +15,15 @@ spec:
         app: {{.SNIPEIT_NAME}}
     spec:
       securityContext:
-        fsGroup: 1000
-        runAsNonRoot: true
+        #fsGroup: 1000
+        #runAsNonRoot: true
       containers:
         - name: snipeit
           image: "{{.SNIPEIT_IMAGE}}:{{.SNIPEIT_TAG}}"
           imagePullPolicy: Always
           securityContext:
-            runAsNonRoot: true
-            runAsUser: 1000
+            #runAsNonRoot: true
+            #runAsUser: 1000
           ports:
             - name: http
               containerPort: {{.SNIPEIT_PORT}}
