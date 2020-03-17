@@ -12,6 +12,7 @@ do
   sed -i 's,{{.SNIPEIT_MYSQL_TBL_PREFIX}},'${SNIPEIT_MYSQL_TBL_PREFIX}',g' $file
   sed -i 's,{{.HOSTNAME}},'${HOSTNAME}',g' $file
   sed -i 's,{{.SNIPEIT_APP_KEY}},'${SNIPEIT_APP_KEY}',g' $file
+  sed -i 's,{{.SNIPEIT_APP_ENV}},'${SNIPEIT_APP_ENV}',g' $file
   sed -i 's,{{.SNIPEIT_EMAIL_USER}},'${SNIPEIT_EMAIL_USER}',g' $file
   sed -i 's,{{.SNIPEIT_EMAIL_PASSWORD}},'${SNIPEIT_EMAIL_PASSWORD}',g' $file
 done
