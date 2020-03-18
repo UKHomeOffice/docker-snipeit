@@ -14,16 +14,16 @@ spec:
       labels:
         app: {{.SNIPEIT_NAME}}
     spec:
-      #securityContext:
-        #fsGroup: 1000
-        #runAsNonRoot: true
+      securityContext:
+        fsGroup: 50
+        runAsNonRoot: true
       containers:
         - name: snipeit
           image: "{{.SNIPEIT_IMAGE}}:{{.SNIPEIT_TAG}}"
           imagePullPolicy: Always
-          #securityContext:
-            #runAsNonRoot: true
-            #runAsUser: 1000
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
           ports:
             - name: http
               containerPort: {{.SNIPEIT_PORT}}
@@ -55,12 +55,16 @@ spec:
                   key: emailPassword
             - name: SNIPEIT_PORT
               value: '{{.SNIPEIT_PORT}}'
+            - name: SNIPEIT_APP_ENV
+              value: '{{.SNIPEIT_APP_ENV}}'
+            - name: SNIPEIT_APP_KEY
+              value: {{.SNIPEIT_APP_KEY}}
 
         - name: {{.SNIPEIT_NAME}}-proxy
           image: "{{.NGINX_IMAGE}}:{{.NGINX_TAG}}"
           imagePullPolicy: Always
-          #securityContext:
-            #runAsNonRoot: true
+          securityContext:
+            runAsNonRoot: true
           env:
             - name: PROXY_SERVICE_HOST
               value: 'http://127.0.0.1'
