@@ -56,7 +56,7 @@ pipeline:
       - source: DEV_KUBE_TOKEN
         target: KUBE_TOKEN
       - source: DEV_SNIPEIT_APP_KEY
-        target: SNIPEIT_APP_KEY
+        target: APP_KEY
       - source: DEV_SNIPEIT_APP_ENV
         target: SNIPEIT_APP_ENV
       - source: DEV_SNIPEIT_HOSTNAME
