@@ -6,6 +6,8 @@ RUN chmod 755 /supervisord.conf
 
 RUN if [ -f /var/lib/snipeit/ssl/snipeit-ssl.crt -a -f /var/lib/snipeit/ssl/snipeit-ssl.key ]; then a2enmod ssl; else a2dismod ssl; fi
 
+RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
+
 RUN mkdir -p /var/lib/snipeit/data/private_uploads/
 RUN mkdir -p /var/lib/snipeit/data/uploads/accessories/
 RUN mkdir -p /var/lib/snipeit/data/uploads/avatars/
