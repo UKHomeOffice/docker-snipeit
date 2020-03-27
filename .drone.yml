@@ -45,7 +45,7 @@ pipeline:
     repo: quay.io/ukhomeofficedigital/docker-snipeit
     tags: ${DRONE_COMMIT_SHA}
     when:
-      #branch: master
+      branch: master
       event: push
 
   deploy_to_dev:
@@ -98,5 +98,5 @@ pipeline:
       - kd --insecure-skip-tls-verify -f kube/deployment.yml
       - kd --insecure-skip-tls-verify -f kube/ingress.yml
     when:
-      #branch: master
+      branch: master
       event: push
