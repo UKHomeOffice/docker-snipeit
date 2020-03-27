@@ -60,7 +60,7 @@ RUN if [ -f /var/lib/snipeit/ssl/snipeit-ssl.crt -a -f /var/lib/snipeit/ssl/snip
 WORKDIR /var/www/html
 
 #copy all configuration files
-COPY docker/docker.env /var/www/html/.env
+COPY .env /var/www/html/.env
 
 #Changed user from docker to www-data
 RUN chown -R www-data /var/www/html
@@ -112,7 +112,6 @@ VOLUME ["/var/lib/snipeit"]
 ##### START SERVER
 
 COPY supervisord.conf startup.sh /
-COPY .env docker/docker.env
 COPY docker/supervisor-exit-event-listener /usr/bin/supervisor-exit-event-listener
 RUN chmod +x /startup.sh /usr/bin/supervisor-exit-event-listener
 
