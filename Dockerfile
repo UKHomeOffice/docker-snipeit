@@ -111,9 +111,9 @@ VOLUME ["/var/lib/snipeit"]
 
 ##### START SERVER
 
-COPY docker/supervisord.conf /
+COPY supervisord.conf startup.sh /
 COPY docker/supervisor-exit-event-listener /usr/bin/supervisor-exit-event-listener
-RUN chmod +x /usr/bin/supervisor-exit-event-listener
+RUN chmod +x /startup.sh /usr/bin/supervisor-exit-event-listener
 
 USER www-data
-ENTRYPOINT ["supervisord","-c","/supervisord.conf"]
+CMD ["/startup.sh"]
