@@ -57,8 +57,8 @@ spec:
               value: '{{.SNIPEIT_PORT}}'
             - name: SNIPEIT_APP_ENV
               value: '{{.SNIPEIT_APP_ENV}}'
-            - name: APP_KEY
-              value: {{.APP_KEY}}
+            - name: SNIPEIT_APP_KEY
+              value: {{.SNIPEIT_APP_KEY}}
 
         - name: {{.SNIPEIT_NAME}}-proxy
           image: "{{.NGINX_IMAGE}}:{{.NGINX_TAG}}"
