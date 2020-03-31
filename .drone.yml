@@ -16,6 +16,22 @@ pipeline:
       environment: secrets
       event: deployment
 
+  synch_production_secrets:
+    image: quay.io/ukhomeofficedigital/cop-secrets
+    environment:
+      - DRONE_SERVER=https://drone.acp.homeoffice.gov.uk
+      - DEPLOY_ENV=production
+    secrets:
+      - source: PRODUCTION_DRONE_AWS_ACCESS_KEY_ID
+        target: AWS_ACCESS_KEY_ID
+      - source: PRODUCTION_DRONE_AWS_SECRET_ACCESS_KEY
+        target: AWS_SECRET_ACCESS_KEY
+      - source: DRONE_PUBLIC_TOKEN
+        target: DRONE_TOKEN
+    when:
+      environment: secrets
+      event: deployment
+
   build:
     image: quay.io/ukhomeofficedigital/drone-docker
     commands:
@@ -100,6 +116,59 @@ pipeline:
     when:
       branch: master
       event: push
+
+  deploy_to_production:
+    image: quay.io/ukhomeofficedigital/kd
+    secrets:
+      - source: PRODUCTION_KUBE_SERVER
+        target: KUBE_SERVER
+      - source: PRODUCTION_KUBE_TOKEN
+        target: KUBE_TOKEN
+      - source: PRODUCTION_SNIPEIT_APP_KEY
+        target: SNIPEIT_APP_KEY
+      - source: PRODUCTION_SNIPEIT_APP_ENV
+        target: SNIPEIT_APP_ENV
+      - source: PRODUCTION_SNIPEIT_HOSTNAME
+        target: HOSTNAME
+      - source: PRODUCTION_SNIPEIT_EMAIL_USER
+        target: SNIPEIT_EMAIL_USER
+      - source: PRODUCTION_SNIPEIT_EMAIL_PASSWORD
+        target: SNIPEIT_EMAIL_PASSWORD
+      - source: PRODUCTION_SNIPEIT_IMAGE
+        target: SNIPEIT_IMAGE
+      - source: PRODUCTION_KUBE_NAMESPACE_COP_OPS
+        target: KUBE_NAMESPACE
+      - source: PRODUCTION_SNIPEIT_MYSQL_HOST
+        target: SNIPEIT_MYSQL_HOST
+      - source: PRODUCTION_SNIPEIT_MYSQL_DBNAME
+        target: SNIPEIT_MYSQL_DBNAME
+      - source: PRODUCTION_SNIPEIT_MYSQL_USER
+        target: SNIPEIT_MYSQL_USER
+      - source: PRODUCTION_SNIPEIT_MYSQL_PASSWORD
+        target: SNIPEIT_MYSQL_PASSWORD
+      - source: PRODUCTION_SNIPEIT_MYSQL_PORT
+        target: SNIPEIT_MYSQL_PORT
+      - source: PRODUCTION_SNIPEIT_MYSQL_TBL_PREFIX
+        target: SNIPEIT_MYSQL_TBL_PREFIX
+      - source: PRODUCTION_SNIPEIT_NAME
+        target: SNIPEIT_NAME
+      - source: PRODUCTION_SNIPEIT_PORT
+        target: SNIPEIT_PORT
+      - source: NGINX_IMAGE
+        target: NGINX_IMAGE
+      - source: NGINX_TAG
+        target: NGINX_TAG
+    commands:
+      - export SNIPEIT_TAG=$${DRONE_COMMIT_SHA}
+      - kd --insecure-skip-tls-verify -f kube/cert.yml
+      - kd --insecure-skip-tls-verify -f kube/secret.yml
+      - kd --insecure-skip-tls-verify -f kube/service.yml
+      - kd --insecure-skip-tls-verify -f kube/network-policy.yml
+      - kd --insecure-skip-tls-verify -f kube/deployment.yml
+      - kd --insecure-skip-tls-verify -f kube/ingress.yml
+    when:
+      branch: master
+      event: deployment
 
   notify:
     image: plugins/slack
