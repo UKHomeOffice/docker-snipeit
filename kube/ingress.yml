@@ -22,4 +22,4 @@ spec:
   tls:
   - hosts:
       - {{.HOSTNAME}}
-    secretName: {{.SNIPEIT_NAME}}-ingress-tls
+    secretName: {{.SNIPEIT_NAME}}-ingress-cmio
