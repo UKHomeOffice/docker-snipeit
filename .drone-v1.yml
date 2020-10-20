@@ -46,7 +46,7 @@ steps:
 
 - name: build
   pull: if-not-exists
-  image: quay.io/ukhomeofficedigital/drone-docker
+  image: docker
   commands:
   - n=0; while [ "$n " -lt 60 ] && [ ! -e /var/run/docker.sock ]; do n=$(( n + 1 )); sleep 1; done
   - docker build -t docker-snipeit:$${DRONE_COMMIT_SHA} .
