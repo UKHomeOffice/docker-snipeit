@@ -65,9 +65,8 @@ steps:
     image_name: docker-snipeit:${DRONE_COMMIT_SHA}
     local_image: true
     tolerate: low
-  volumes:
-  - name: dockersock
-    path: /var/run
+  environment:
+    SERVICE_URL: http://anchore-submission-server:10080
   when:
     branch:
     - master
@@ -233,8 +232,6 @@ services:
 
 - name: anchore-submission-server
   image: quay.io/ukhomeofficedigital/anchore-submission:latest
-  commands:
-  - /anchore-submission server
   volumes:
   - name: dockersock
     path: /var/run
