@@ -46,9 +46,9 @@ steps:
 
 - name: build
   pull: if-not-exists
-  image: docker
+  image: docker:19.03.12-dind
   commands:
-  - n=0; while [ "$n " -lt 60 ] && [ ! -e /var/run/docker.sock ]; do n=$(( n + 1 )); sleep 1; done
+  - n=0; while [ "$n" -lt 60 ] && [ ! -e /var/run/docker.sock ]; do n=$(( n + 1 )); sleep 1; done
   - docker build -t docker-snipeit:$${DRONE_COMMIT_SHA} .
   volumes:
   - name: dockersock
@@ -226,7 +226,7 @@ steps:
 
 services:
 - name: docker
-  image: quay.io/ukhomeofficedigital/drone-docker
+  image: docker:19.03.12-dind
   volumes:
   - name: dockersock
     path: /var/run
