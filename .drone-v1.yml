@@ -58,16 +58,15 @@ steps:
     - push
 
 - name: vulnerability-scan
-  pull: if-not-exists
   image: docker.digital.homeoffice.gov.uk/acp-anchore-submission:latest
-  settings:
-    dockerfile: Dockerfile
-    image_name: docker-snipeit:${DRONE_COMMIT_SHA}
-    local_image: true
-    tolerate: low
   environment:
+    DOCKERFILE: Dockerfile
     IMAGE_NAME: docker-snipeit:${DRONE_COMMIT_SHA}
+    LOCAL_IMAGE: true
     SERVICE_URL: http://anchore-submission-server:10080
+    TOLERATE: low
+    dockerfile: Dockerfile
+    local_image: true
   when:
     branch:
     - master
@@ -235,6 +234,9 @@ services:
   image: docker.digital.homeoffice.gov.uk/acp-anchore-submission:latest
   commands:
   - /anchore-submission server
+  environment:
+    ANCHORE_URL: acp-anchore.acp.homeoffice.gov.uk
+    REGISTRY_URL: acp-ephemeral-registry.acp.homeoffice.gov.uk
   volumes:
   - name: dockersock
     path: /var/run
