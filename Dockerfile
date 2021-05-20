@@ -66,8 +66,8 @@ COPY . /var/www/html
 RUN a2enmod rewrite
 
 #Customized for COP
-RUN chmod -R 775 /var/log
-RUN chmod -R 775 /var/run/apache2
+RUN chmod -R 777 /var/log
+RUN chmod -R 777 /var/run/apache2
 RUN sed -i -e 's/:80/:9000/g' /etc/apache2/sites-enabled/000-default.conf
 RUN sed -i -e 's/Listen 80/Listen 9000/g' /etc/apache2/ports.conf
 RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
