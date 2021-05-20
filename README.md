@@ -2,6 +2,8 @@
 
 This snipeit cloned from snipe/snipe-it and customized to run with non-root user. Snipe-IT is Open Source Asset Management System.
 
+Snipe-IT v5.1.5
+
 # Usage
 
 To use this snipeit, first clone this repo
@@ -22,4 +24,3 @@ To run the resulting Docker container:
 ```sh
 docker run -it snipeit
 ```
-
