@@ -1,35 +1,55 @@
-FROM ubuntu:xenial
+FROM ubuntu:bionic
 
-RUN apt-get update && apt-get install -y software-properties-common
-RUN LC_ALL=C.UTF-8 add-apt-repository -y ppa:ondrej/php
-RUN apt-get update && apt-get install -y \
+RUN export DEBIAN_FRONTEND=noninteractive; \
+    export DEBCONF_NONINTERACTIVE_SEEN=true; \
+    echo 'tzdata tzdata/Areas select Etc' | debconf-set-selections; \
+    echo 'tzdata tzdata/Zones/Etc select UTC' | debconf-set-selections; \
+    apt-get update -qqy \
+ && apt-get install -qqy --no-install-recommends \
+apt-utils \
 apache2 \
 apache2-bin \
-libapache2-mod-php7.1 \
-php7.1-curl \
-php7.1-ldap \
-php7.1-mysql \
-php7.1-mcrypt \
-php7.1-gd \
-php7.1-xml \
-php7.1-mbstring \
-php7.1-zip \
-php7.1-bcmath \
+libapache2-mod-php7.2 \
+php7.2-curl \
+php7.2-ldap \
+php7.2-mysql \
+php7.2-gd \
+php7.2-xml \
+php7.2-mbstring \
+php7.2-zip \
+php7.2-bcmath \
 patch \
 curl \
+wget  \
 vim \
 git \
+cron \
 mysql-client \
 supervisor \
-&& apt-get clean \
+cron \
+gcc \
+make \
+autoconf \
+libc-dev \
+pkg-config \
+libmcrypt-dev \
+php7.2-dev \
+ca-certificates \
+unzip \
 && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+
+RUN curl -L -O https://github.com/pear/pearweb_phars/raw/master/go-pear.phar
+RUN php go-pear.phar
+RUN pecl install mcrypt-1.0.2
+RUN bash -c "echo extension=/usr/lib/php/20170718/mcrypt.so > /etc/php/7.2/mods-available/mcrypt.ini"
 
 RUN phpenmod mcrypt
 RUN phpenmod gd
 RUN phpenmod bcmath
 
-RUN sed -i 's/variables_order = .*/variables_order = "EGPCS"/' /etc/php/7.1/apache2/php.ini
-RUN sed -i 's/variables_order = .*/variables_order = "EGPCS"/' /etc/php/7.1/cli/php.ini
+RUN sed -i 's/variables_order = .*/variables_order = "EGPCS"/' /etc/php/7.2/apache2/php.ini
+RUN sed -i 's/variables_order = .*/variables_order = "EGPCS"/' /etc/php/7.2/cli/php.ini
 
 #Removed for COP
 #RUN useradd -m --uid 1000 --gid 50 docker
@@ -42,12 +62,13 @@ COPY docker/000-default.conf /etc/apache2/sites-enabled/000-default.conf
 RUN mkdir -p /var/lib/snipeit/ssl
 COPY docker/001-default-ssl.conf /etc/apache2/sites-enabled/001-default-ssl.conf
 RUN a2enmod ssl
+RUN a2ensite 001-default-ssl.conf
 COPY . /var/www/html
 RUN a2enmod rewrite
 
 #Customized for COP
-RUN chmod -R 777 /var/log
-RUN chmod -R 777 /var/run/apache2
+RUN chmod -R 775 /var/log
+RUN chmod -R 775 /var/run/apache2
 RUN sed -i -e 's/:80/:9000/g' /etc/apache2/sites-enabled/000-default.conf
 RUN sed -i -e 's/Listen 80/Listen 9000/g' /etc/apache2/ports.conf
 RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
@@ -83,12 +104,13 @@ RUN \
      && mkdir "/var/lib/snipeit/dumps"
 
 RUN \
-	rm -r "/var/www/html/storage/private_uploads" && ln -fs "/var/lib/snipeit/data/private_uploads" "/var/www/html/storage/private_uploads" \
+	       rm -r "/var/www/html/storage/private_uploads" && ln -fs "/var/lib/snipeit/data/private_uploads" "/var/www/html/storage/private_uploads" \
       && rm -rf "/var/www/html/public/uploads" && ln -fs "/var/lib/snipeit/data/uploads" "/var/www/html/public/uploads" \
       && rm -r "/var/www/html/storage/app/backups" && ln -fs "/var/lib/snipeit/dumps" "/var/www/html/storage/app/backups" \
-      && mkdir "/var/lib/snipeit/keys" && ln -fs "/var/lib/snipeit/keys/oauth-private.key" "/var/www/html/storage/oauth-private.key" \
+      && mkdir -p "/var/lib/snipeit/keys" && ln -fs "/var/lib/snipeit/keys/oauth-private.key" "/var/www/html/storage/oauth-private.key" \
       && ln -fs "/var/lib/snipeit/keys/oauth-public.key" "/var/www/html/storage/oauth-public.key" \
       && chown www-data "/var/lib/snipeit/keys/" \
+      && chown -h www-data "/var/www/html/storage/" \
       && chmod +x /var/www/html/artisan \
       && echo "Finished setting up application in /var/www/html"
 
@@ -101,11 +123,12 @@ RUN \
 ############## DEPENDENCIES via COMPOSER ###################
 
 #global install of composer
-RUN cd /tmp;curl -sS https://getcomposer.org/installer | php;mv /tmp/composer.phar /usr/local/bin/composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # Get dependencies
-RUN cd /var/www/html;composer install && rm -rf /home/docker/.composer/cache
-###########################################################
+RUN composer install --no-dev --working-dir=/var/www/html
+
+############### DATA VOLUME #################
 
 VOLUME ["/var/lib/snipeit"]
 
